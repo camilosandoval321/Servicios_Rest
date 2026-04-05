@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee
+         http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
+         version="3.1">
+
+    <display-name>AgendaWS</display-name>
+
+    <!-- ============================================================
+         Configuración del Servlet de Jersey para manejar REST
+         ============================================================ -->
+    <servlet>
+        <servlet-name>ServletAdaptor</servlet-name>
+        <servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
+
+        <!-- Paquete donde Jersey buscará las clases de servicio anotadas con @Path -->
+        <init-param>
+            <description>
+                Paquete(s) donde se encuentran los recursos REST.
+                Múltiples paquetes se separan con punto y coma (;)
+            </description>
+            <param-name>com.sun.jersey.config.property.packages</param-name>
+            <param-value>co.edu.unipiloto.ws.agendaws.services</param-value>
+        </init-param>
+
+        <!-- Habilitar mapeo automático de POJO a JSON -->
+        <init-param>
+            <param-name>com.sun.jersey.api.json.POJOMappingFeature</param-name>
+            <param-value>true</param-value>
+        </init-param>
+
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <!-- Mapeo de URL: todas las peticiones a /webresources/* van a Jersey -->
+    <servlet-mapping>
+        <servlet-name>ServletAdaptor</servlet-name>
+        <url-pattern>/webresources/*</url-pattern>
+    </servlet-mapping>
+
+</web-app>

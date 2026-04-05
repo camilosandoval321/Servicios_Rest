@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratorio 4 — REST Services</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; max-width: 900px; margin: 40px auto; padding: 0 20px; background: #f5f5f5; }
+        h1   { color: #c0392b; }
+        h2   { color: #333; border-bottom: 2px solid #c0392b; padding-bottom: 6px; margin-top: 32px; }
+        table { width: 100%; border-collapse: collapse; background: #fff; margin-bottom: 24px; border-radius: 6px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,.1); }
+        th   { background: #c0392b; color: #fff; padding: 11px 12px; text-align: left; }
+        td   { padding: 10px 12px; border-bottom: 1px solid #eee; vertical-align: middle; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #fef6f6; }
+        code { background: #eee; padding: 2px 6px; border-radius: 3px; font-size: 0.88em; word-break: break-all; }
+        pre  { background: #2d2d2d; color: #f8f8f2; padding: 16px; border-radius: 6px; overflow-x: auto; font-size: 0.9em; }
+
+        /* Badges */
+        .badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 0.78em; font-weight: bold; color: #fff; white-space: nowrap; }
+        .get  { background: #27ae60; }
+        .post { background: #2980b9; }
+        .xml  { background: #e67e22; }
+        .json { background: #8e44ad; }
+
+        /* Botones */
+        .btn {
+            display: inline-block; padding: 5px 14px; border-radius: 5px;
+            font-size: 0.85em; font-weight: bold; cursor: pointer;
+            border: none; color: #fff; text-decoration: none;
+            transition: opacity .15s;
+        }
+        .btn:hover { opacity: .82; }
+        .btn-go   { background: #27ae60; }
+        .btn-post { background: #2980b9; }
+
+        /* Inputs para ID */
+        .id-group { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+        .id-group input[type=number] {
+            width: 72px; padding: 5px 8px; border: 1px solid #ccc;
+            border-radius: 5px; font-size: 0.9em;
+        }
+
+        /* POST form */
+        .post-form { background: #fff; border-radius: 6px; padding: 18px 20px; box-shadow: 0 1px 4px rgba(0,0,0,.1); }
+        .post-form label { display: block; margin-bottom: 4px; font-weight: bold; font-size: .9em; }
+        .post-form input[type=text], .post-form input[type=number] {
+            width: 100%; padding: 7px 10px; border: 1px solid #ccc;
+            border-radius: 5px; font-size: .9em; margin-bottom: 12px;
+        }
+        .post-form .row { display: flex; gap: 16px; }
+        .post-form .row > div { flex: 1; }
+
+        /* Respuesta inline */
+        .response-box {
+            display: none; margin-top: 12px; background: #f8f8f8;
+            border: 1px solid #ddd; border-radius: 6px;
+            padding: 12px 14px; font-size: 0.85em; max-height: 240px;
+            overflow-y: auto; white-space: pre-wrap; word-break: break-all;
+            color: #222; font-family: monospace;
+        }
+
+        a { color: #c0392b; }
+        .note { font-size: .85em; color: #666; margin-top: 6px; }
+    </style>
+</head>
+<body>
+
+<h1>Laboratorio 4 introducción a servicios Restful</h1>
+<p>Proyecto de laboratorio — <em> REST · Arquitectura de Software</em><br>
+   Universidad Piloto de Colombia.</p>
+
+<h2>Endpoints</h2>
+<table>
+    <tr>
+        <th style="width:70px">Método</th>
+        <th>Endpoint</th>
+        <th style="width:70px">Formato</th>
+        <th>Acción</th>
+    </tr>
+
+    <!-- Todas las personas JSON -->
+    <tr>
+        <td><span class="badge get">GET</span></td>
+        <td><code>/webresources/service/getAllPersonsInJson</code></td>
+        <td><span class="badge json">JSON</span></td>
+        <td>
+            <a class="btn btn-go" href="webresources/service/getAllPersonsInJson" target="_blank">Ir →</a>
+        </td>
+    </tr>
+
+    <!-- Todas las personas XML -->
+    <tr>
+        <td><span class="badge get">GET</span></td>
+        <td><code>/webresources/service/getAllPersonsInXml</code></td>
+        <td><span class="badge xml">XML</span></td>
+        <td>
+            <a class="btn btn-go" href="webresources/service/getAllPersonsInXml" target="_blank">Ir →</a>
+        </td>
+    </tr>
+
+    <!-- Persona por ID JSON — input interactivo -->
+    <tr>
+        <td><span class="badge get">GET</span></td>
+        <td><code>/webresources/service/getPersonByIdJson/<strong>{id}</strong></code></td>
+        <td><span class="badge json">JSON</span></td>
+        <td>
+            <div class="id-group">
+                <input type="number" id="idJson" min="1" value="1" placeholder="ID">
+                <button class="btn btn-go" onclick="goById('getPersonByIdJson', 'idJson')">Ir →</button>
+            </div>
+        </td>
+    </tr>
+
+    <!-- Persona por ID XML — input interactivo -->
+    <tr>
+        <td><span class="badge get">GET</span></td>
+        <td><code>/webresources/service/getPersonByIdXML/<strong>{id}</strong></code></td>
+        <td><span class="badge xml">XML</span></td>
+        <td>
+            <div class="id-group">
+                <input type="number" id="idXml" min="1" value="1" placeholder="ID">
+                <button class="btn btn-go" onclick="goById('getPersonByIdXML', 'idXml')">Ir →</button>
+            </div>
+        </td>
+    </tr>
+
+    <!-- Salario promedio XML -->
+    <tr>
+        <td><span class="badge get">GET</span></td>
+        <td><code>/webresources/service/getAverageSalaryInXML</code> </td>
+        <td><span class="badge xml">XML</span></td>
+        <td>
+            <a class="btn btn-go" href="webresources/service/getAverageSalaryInXML" target="_blank">Ir →</a>
+        </td>
+    </tr>
+
+    <!-- Suma salarios JSON -->
+    <tr>
+        <td><span class="badge get">GET</span></td>
+        <td><code>/webresources/service/getSumSalariesInJson</code> </td>
+        <td><span class="badge json">JSON</span></td>
+        <td>
+            <a class="btn btn-go" href="webresources/service/getSumSalariesInJson" target="_blank">Ir →</a>
+        </td>
+    </tr>
+
+    <!-- POST -->
+    <tr>
+        <td><span class="badge post">POST</span></td>
+        <td><code>/webresources/service/addPersonInJson</code></td>
+        <td><span class="badge json">JSON</span></td>
+        <td><em>Ver formulario abajo ↓</em></td>
+    </tr>
+</table>
+
+
+<!-- ============================================================
+     FORMULARIO POST
+     ============================================================ -->
+<h2>Agregar persona (POST)</h2>
+<div class="post-form">
+    <div class="row">
+        <div>
+            <label for="pId">ID</label>
+            <input type="number" id="pId" placeholder="Ej: 11" min="1">
+        </div>
+        <div>
+            <label for="pAge">Edad</label>
+            <input type="number" id="pAge" placeholder="Ej: 30" min="1">
+        </div>
+    </div>
+    <label for="pName">Nombre completo</label>
+    <input type="text" id="pName" placeholder="Ej: Juan Pérez">
+
+    <button class="btn btn-post" onclick="postPersona()">Enviar POST</button>
+    <p class="note">El salario se calcula automáticamente: <code>edad × 2.000.000 / 3</code></p>
+    <p class="note">Usar este link para el post: <code> http://localhost:8080/AgendaWS/webresources/service/addPersonInJson </code> </p>
+
+    <div class="response-box" id="postResult"></div>
+</div>
+
+
+<!-- ============================================================
+     INFO
+     ============================================================ -->
+<h2>Fórmula de salario</h2>
+<p><code>salario = edad × 2.000.000 / 3</code><br>
+   Constante definida en <code>Persona.java → SALARIO_MINIMO = 2_000_000</code></p>
+
+
+<script>
+    // Abre en nueva pestaña el endpoint con {id} reemplazado
+    function goById(endpoint, inputId) {
+        var id = document.getElementById(inputId).value.trim();
+        if (!id || isNaN(id) || parseInt(id) < 1) {
+            alert('Por favor ingresa un ID válido (número mayor a 0).');
+            return;
+        }
+        window.open('webresources/service/' + endpoint + '/' + parseInt(id), '_blank');
+    }
+
+    // Envía POST y muestra la respuesta en la misma página
+    async function postPersona() {
+        var id     = document.getElementById('pId').value.trim();
+        var name   = document.getElementById('pName').value.trim();
+        var age    = document.getElementById('pAge').value.trim();
+        var result = document.getElementById('postResult');
+
+        if (!id || !name || !age) {
+            alert('Completa todos los campos antes de enviar.');
+            return;
+        }
+
+        var body = { id: parseInt(id), fullName: name, age: parseInt(age) };
+
+        result.style.display = 'block';
+        result.style.color   = '#555';
+        result.textContent   = '⏳ Enviando...';
+
+        try {
+            var resp = await fetch('webresources/service/addPersonInJson', {
+                method:  'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body:    JSON.stringify(body)
+            });
+            var text = await resp.text();
+            var pretty;
+            try { pretty = JSON.stringify(JSON.parse(text), null, 2); }
+            catch(e) { pretty = text; }
+
+            result.style.color = resp.ok ? '#155724' : '#721c24';
+            result.textContent = 'HTTP ' + resp.status + '\n\n' + pretty;
+        } catch (err) {
+            result.style.color = '#721c24';
+            result.textContent = '❌ Error de conexión:\n' + err.message
+                + '\n\nVerifica que GlassFish está corriendo.';
+        }
+    }
+</script>
+
+</body>
+</html>
